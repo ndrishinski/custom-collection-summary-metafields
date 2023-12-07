@@ -1,0 +1,184 @@
+{% if collection.metafields.custom.collection_image and section.settings.enableCollectionInfo %}
+  <style>
+    #s-first---{{ section.id}}{
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      background: #f2f2f2;
+    }
+
+    .max-width--content {
+      position: relative;
+    }
+
+    #s--{{ section.id}}.accordion__item {
+      background: '#777';
+      text-align: left;
+    }
+
+    #s--{{ section.id}}.accordion__item--title {
+      padding: 0.5rem 1rem;
+      display: flex;
+      align-items: center;
+      cursor: pointer;
+    }
+
+    #s--{{ section.id}}.accordion {
+      /* max-width: 800px; */
+      margin: auto;
+    }
+
+    .faq_question {
+      background: #f2f2f2;
+      padding: 30px;
+      margin: 0 0 20px;
+      cursor: pointer;
+      font-size: 18px;
+      font-weight: bold;
+      line-height: 26px;
+      text-align: left;
+      height: 80px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .accordion__item {
+      border: 0;
+      margin-bottom: 10px;
+    }
+
+    .accordion__item input:checked ~ .accordion__item--content {
+      background: none;
+      padding: 0 0 15px;
+    }
+
+    .accordion__item input {
+      display: none;
+    }
+
+
+    .accordion__item--title h1 {
+      margin-left: auto;
+      margin-right: 10px;
+      font-size: 20px; /* Adjust as needed */
+    }
+
+    /* Hide the content by default */
+    .accordion__item--content {
+      display: none;
+    }
+
+    /* Show the content when the radio input is checked */
+    .accordion__item input:checked + .accordion__item--title + .accordion__item--content {
+      display: block;
+    }
+
+    #maxWidth--{{ section.id}}{
+      justify-content: center;
+      align-items: center;
+      display: flex;
+      flex-direction: column;
+    }
+  </style>
+  <div id="s-first---{{section.id}}">
+    <div style="max-width: 800px;background: #f2f2f2; padding-top: 40px; width: 100%;">
+      <img src="{{ collection.metafields.custom.collection_image | img_url: 'large' }}" loading="lazy">
+    </div>
+  </div>
+  <div id="s--{{-section.id}}">
+    <div class="row no-gap layout__content s__content">
+      <div id="maxWidth--{{-section.id}}" class="row max-width--content accordion">
+        {% assign my_arr = collection.metafields.custom.faq_questions.value %}
+        {% assign len = my_arr.size | minus: 1 %}
+        {% assign questions = collection.metafields.custom.faq_questions.value %}
+        {% assign answers = collection.metafields.custom.faq_answers.value %}
+        <div style="width: 100%; background: #f2f2f2;">
+          <div class="collection-summary" style="margin-bottom: 1.5rem; background: #f2f2f2; padding: 20px;">
+            <h2 style="text-align: center; color: #002649; font-weight: bold;">{{ collection.metafields.custom.collection_heading }}</h2>
+            <p id="collection-summary-p" style="text-align: center;">{{ collection.metafields.custom.collection_summary | truncate: 150 | newline_to_br }}</p>
+            <div style="display: flex; justify-content: center; flex: 1;">
+              <button
+                style="padding: 2px 5px; border-radius: 4px; text-align: center; min-height: 20px; max-width: 100px; background: #fff; border: 1px solid #000; color: #000"
+                data-summary="{{ collection.metafields.custom.collection_summary | newline_to_br }}"
+                id="read-more-summary">Read More</button>
+            </div>
+          </div>
+        </div>
+        <div style="max-width: 800px; align-self: center; width: 100%;">
+
+          <h3 style="text-align: center;">Frequently Asked Questions</h3>
+          {% for i in (0..len) %}
+            <label class="accordion__item">
+              <input
+                type="radio"
+                name="{{section.id}}"
+                {% if forloop.first %}checked{% endif %}>
+              <span class="accordion__item--title faq_question">
+                {{ questions[i] }}<label class="collapse" for="{{section.id}}--close"></label>
+                <h1>+</h1>
+              </span>
+              <div style="padding-left: 15px;" class="accordion__item--content">{{ answers[i] }}</div>
+            </label>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+  </div>
+  <script>
+    let readMoreSummary = document.querySelector('#read-more-summary')
+
+    if (readMoreSummary) {
+      readMoreSummary.addEventListener('click', (e) => {
+        let selected = document.querySelector('#collection-summary-p')
+        let temp = selected.innerHTML
+        selected.innerHTML = e
+          .target
+          .dataset
+          .summary
+          e
+          .target
+          .dataset
+          .summary = temp
+        if (temp.includes('...')) {
+          document.querySelector('#read-more-summary').textContent = 'See Less'
+        } else {
+          document.querySelector('#read-more-summary').textContent = 'See More'
+        }
+      })
+    }
+
+
+
+    document.addEventListener('DOMContentLoaded', function() {
+
+// Add click event listeners to each title
+      var titles = document.querySelectorAll('.accordion__item--title');
+      titles.forEach(function(title) {
+        title.addEventListener('click', function() {
+
+// Find the associated radio input and toggle its checked state
+          var input = this.previousElementSibling;
+          input.checked = ! input.checked;
+        });
+      });
+    });
+  </script>
+{% endif %}
+{% schema %}
+  {
+    "name": {
+      "en": "Custom Collection Info"
+    },
+    "settings": [
+      {
+        "type": "checkbox",
+        "id": "enableCollectionInfo",
+        "label": "Enable Collection Info Section",
+        "default": false
+      }
+    ],
+    "blocks": []
+  }
+{% endschema %}
